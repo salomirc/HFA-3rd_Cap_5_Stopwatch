@@ -18,7 +18,6 @@ class MainActivity : AppCompatActivity() {
 
         //Get a reference to the stopwatch
         stopwatch = findViewById(R.id.stopwatch)
-        stopwatch.base = SystemClock.elapsedRealtime()
 
         //The start button starts the stopwatch id it's not running
         val startButton = findViewById<Button>(R.id.start_button)
