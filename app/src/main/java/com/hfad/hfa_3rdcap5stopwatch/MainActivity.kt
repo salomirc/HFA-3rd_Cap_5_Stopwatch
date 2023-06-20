@@ -1,12 +1,15 @@
 package com.hfad.hfa_3rdcap5stopwatch
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.SystemClock
 import android.widget.Button
 import android.widget.Chronometer
 
-class MainActivity : AppCompatActivity() {
+private const val BASE_KEY = "base"
+private const val OFFSET_KEY = "offset"
+private const val RUNNING_KEY = "running"
+
+class MainActivity : BaseActivity() {
 
     private lateinit var stopwatch: Chronometer //The stopwatch
     private var isRunning = false //Is the stopwatch running
@@ -18,6 +21,20 @@ class MainActivity : AppCompatActivity() {
 
         //Get a reference to the stopwatch
         stopwatch = findViewById(R.id.stopwatch)
+
+        //Restore the previous state
+//        savedInstanceState?.let {
+//            offset = it.getLong(OFFSET_KEY)
+//            isRunning = it.getBoolean(RUNNING_KEY)
+//            if (isRunning) {
+//                stopwatch.apply {
+//                    base = it.getLong(BASE_KEY)
+//                    start()
+//                }
+//            } else {
+//                setBaseTime()
+//            }
+//        }
 
         //The start button starts the stopwatch id it's not running
         val startButton = findViewById<Button>(R.id.start_button)
@@ -44,6 +61,52 @@ class MainActivity : AppCompatActivity() {
         resetButton.setOnClickListener {
             offset = 0
             setBaseTime()
+        }
+    }
+
+    override fun onPause() {
+        super.onPause()
+        if (isRunning) {
+            saveOffset()
+            stopwatch.stop()
+        }
+    }
+
+
+    override fun onResume() {
+        super.onResume()
+        if (isRunning) {
+            setBaseTime()
+            stopwatch.start()
+            offset = 0
+        }
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        outState.apply {
+            putLong(OFFSET_KEY, offset)
+            putBoolean(RUNNING_KEY, isRunning)
+            putLong(BASE_KEY, stopwatch.base)
+        }
+        super.onSaveInstanceState(outState)
+    }
+
+    // This method is called after the onCreate(savedInstanceState: Bundle?)
+    // and represent an alternative to this code offering the separation of responsibility
+    // If possible from the implementation point of view, is recommended to use this method.
+    override fun onRestoreInstanceState(savedInstanceState: Bundle) {
+        super.onRestoreInstanceState(savedInstanceState)
+        savedInstanceState.let {
+            offset = it.getLong(OFFSET_KEY)
+            isRunning = it.getBoolean(RUNNING_KEY)
+            if (isRunning) {
+                stopwatch.apply {
+                    base = it.getLong(BASE_KEY)
+                    start()
+                }
+            } else {
+                setBaseTime()
+            }
         }
     }
 
